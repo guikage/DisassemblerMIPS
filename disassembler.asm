@@ -1,7 +1,3 @@
-#s0: cabecalho arquivo de entrada
-#s1: cabecalho arquivo de saida
-
-
 .data
 	filein: .asciiz "./teste.bin"
 	fileout: .asciiz "./teste.txt"
@@ -61,16 +57,21 @@ escreve_out:
 	syscall
 	jr $ra
 
+decode:
+	#TODO: decodificar a entrada
+
 loop:
 	move $s7, $ra
+	j loop_1
+	
+loop_2:
+	jal decode
+	jal escreve_out
+	
 loop_1:
 	jal le_in
 	j loop_teste
 
-loop_2:
-	jal escreve_out
-	j loop_1
-	
 loop_teste:
 	beq $t8, 4, loop_2
 	
