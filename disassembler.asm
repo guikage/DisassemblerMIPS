@@ -13,7 +13,7 @@
 main:
 	jal abre_in
 	jal abre_out
-	jal while_inicio
+	jal loop
 	j fim
 	
 abre_in:
@@ -61,17 +61,20 @@ escreve_out:
 	syscall
 	jr $ra
 
-while_inicio:
+loop:
 	move $s7, $ra
-
-while_corpo:
+loop_1:
 	jal le_in
+	j loop_teste
+
+loop_2:
 	jal escreve_out
+	j loop_1
 	
-while_teste:
-	beq $t8, 4, while_corpo
+loop_teste:
+	beq $t8, 4, loop_2
 	
-while_fim:
+loop_fim:
 	jr $s7
 
 fim:
