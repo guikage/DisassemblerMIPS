@@ -1,54 +1,62 @@
 .data
-	filein: .asciiz "./teste.bin"
-	fileout: .asciiz "./teste.txt"
-	descrin: .word 0
-	descrout: .word 0
-	buffer: .space 4
-
+    filein: .asciiz "./leitura.txt"
+    fileout: .asciiz "./teste.txt"
+    descrin: .word 0
+    descrout: .word 0
+    buffer: .space 4
+    erro_manipulacao: .ascizz "ERRO AO MANIPULAR O ARQUIVO!!"
+    opcode: .word 0
+    func: .word 0
+    rs: .word 0
+    rt: .word 0
+    rd: .word 0
+    shamt: .word 0
+    imm: .word 0    
+    
 .text
 main:
-	jal abre_in
-	jal abre_out
+	jal abre_in			# ABRE ARQUIVO PARA LEITURA
+	jal abre_out			# ABRE ARQUIVO PARA ESCRITA
 	jal loop
 	j fim
-	
+
+# LEITURA!!
 abre_in:
-	addi $v0, $zero, 13 #vi = 13
-	la $a0, filein #a0 = nome do arquivo
-	move $a1, $zero #a1 = 0 (read)
+	addi $v0, $zero, 13 		# INSTRUCAO PARA ABERTURA DE ARQ
+	la $a0, filein 			# a0 = CAMINHO DO ARQ
+	move $a1, $zero 		# a1 = 0 (LEITURA)
 	syscall
-	sw $v0, descrin
-	jr $ra
+	beq $v0, $zero, erro_arquivo	# SE V0 != 0, HOUVE ERRO E VAI PARA erro_aquivo ONDE E TRATADO O ERRO
 	
-abre_out:
-	addi $v0, $zero, 13 #vi = 13
-	la $a0, fileout #a0 = nome do arquivo
-	addi $a1, $zero, 1 #a1 = 1 (write)
-	syscall
-	sw $v0, descrout
-	jr $ra
+	sw $v0, descrin			# descrin = $v0
+	jr $ra				# RETURN
 	
-fecha_in:
-	addi $v0, $zero, 16
-	lw $a0, descrin
-	syscall
-	jr $ra
-
-fecha_out:
-	addi $v0, $zero, 16
-	lw $a0, descrout
-	syscall
-	jr $ra
-
 le_in:
-	addi $v0, $zero, 14 #vi = 14
-	lw $a0, descrin #a0 = cabecalho
-	la $a1, buffer #a1 = endereco do buffer
-	addi $a2, $zero, 4 #a2 = 4 (tamanho do buffer)
+	addi $v0, $zero, 14 		# INSTRUCAO PARA LEITURA
+	lw $a0, descrin 		# a0 = CABECALHO
+	la $a1, buffer 			# a1 = ENDERECO DO BUFFER
+	addi $a2, $zero, 4 		# a2 = 4 (TAMANHO DO BUFFER)
 	syscall
 	add $t8, $v0, $zero
-	jr $ra
-	
+	jr $ra				# RETURN
+		
+fecha_in:
+	addi $v0, $zero, 16		# INSTRUCAO PARA FECHAMENTO DE ARQ
+	lw $a0, descrin			# a0 = descrin
+	syscall
+	beq $v0, $zero, erro_arquivo  	# VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
+	jr $ra				# RETURN
+
+# ESCRITA!  			
+abre_out:
+	addi $v0, $zero, 13 		# INSTRUCAO PARA ABERTURA DE ARQ
+	la $a0, fileout 		# a0 = CAMINHO DO ARQ
+	addi $a1, $zero, 1 		# a1 = 1 (ESCRITA)
+	syscall	
+	beq $v0, $zero, erro_arquivo	# SE V0 != 0, HOUVE ERRO E VAI PARA erro_aquivo ONDE E TRATADO O ERRO
+	sw $v0, descrout		# descrout = $v0
+	jr $ra					# RETURN
+
 escreve_out:
 	addi $v0, $zero, 15
 	lw $a0, descrout
@@ -57,13 +65,17 @@ escreve_out:
 	syscall
 	jr $ra
 
-decode:
-	#TODO: decodificar a entrada
+fecha_out:
+	addi $v0, $zero, 16		# INSTRUCAO PARA FECHAMENTO DE ARQ
+	lw $a0, descrout		# a0 = descrout
+	syscall
+	beq $v0, $zero, erro_arquivo  	# VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
+	jr $ra				# RETURN
 
+# LOOP PARA LEITURA E ESCRITA!!
 loop:
 	move $s7, $ra
 	j loop_1
-	
 loop_2:
 	jal decode
 	jal escreve_out
@@ -78,9 +90,18 @@ loop_teste:
 loop_fim:
 	jr $s7
 
+erro_arquivo:
+    addi $v0, $zero, 4    		# IMPRIMIR STRING
+    la $a0, erro_manipulacao		# MENSAGEM DE ERRO AO USUARIO
+    syscall
+    j fim				
+    
+# DECODIFICACAO!!
+decode:
+	# DECODIFICACAO!!
 fim:
 	jal fecha_in
 	jal fecha_out
-	addi $v0, $zero, 17 # serviço 17 - exit 2
-	addi $a0, $zero, 0 # o valor de retorno do programa é 0 - sucesso
-	syscall             # fazemos uma chamada do serviço 17 do sistema com valor 0
+	addi $v0, $zero, 17 		# ENCERRAR PROGRAM
+	addi $a0, $zero, 0 		# VALOR DE RETORNO DO PROGRAMA: 0 - SUCESSO
+	syscall             		# CHAMADA DO SISTEMA PARA ENCERRAR O PROGRAM COM VALOR 0
