@@ -242,55 +242,53 @@ init:
     j main
 
 fini:
-    addi $v0, $zero, 17 # serviço 17 - exit 2
-    addi $a0, $zero, 0 # o valor de retorno do programa é 0 - 
+    addi $v0, $zero, 17     # SERVICO 17, ENCERRAR PROGRAMA
+    addi $a0, $zero, 0         # O VALOR DE RETORNO DO PROGRAMA = 0
     syscall
 
 
 # LEITURA!!
-abre_in:
-	addi $v0, $zero, 13 		# INSTRUCAO PARA ABERTURA DE ARQ
-	la $a0, filein 			# a0 = CAMINHO DO ARQ
-	move $a1, $zero 		# a1 = 0 (LEITURA)
-	syscall
-	beq $v0, $zero, erro_arquivo	# SE V0 != 0, HOUVE ERRO E VAI PARA erro_aquivo ONDE E TRATADO O ERRO
-	
-	sw $v0, descrin			# descrin = $v0
-	jr $ra				# RETURN
+abre_leitura:
+    addi $v0, $zero, 13         # INSTRUCAO PARA ABERTURA DE ARQ
+    la $a0, filein             # a0 = CAMINHO DO ARQ
+    move $a1, $zero         # a1 = 0 (LEITURA)
+    syscall
+    
+    sw $v0, descrin            # descrin = $v0
+    jr $ra                # RETURN
 
 #le_in(void) -> bytes_lidos
 le_in:
-	addi $v0, $zero, 14 		# INSTRUCAO PARA LEITURA
-	lw $a0, descrin 		# a0 = CABECALHO
-	la $a1, buffer 			# a1 = ENDERECO DO BUFFER
-	addi $a2, $zero, 4 		# a2 = 4 (TAMANHO DO BUFFER)
-	syscall
-	jr $ra				# RETURN
-		
-fecha_in:
-	addi $v0, $zero, 16		# INSTRUCAO PARA FECHAMENTO DE ARQ
-	lw $a0, descrin			# a0 = descrin
-	syscall
-	beq $v0, $zero, erro_arquivo  	# VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
-	jr $ra				# RETURN
+    addi $v0, $zero, 14     # INSTRUCAO PARA LEITURA
+    lw $a0, descrin         # a0 = CABECALHO
+    la $a1, buffer             # a1 = ENDERECO DO BUFFER
+    addi $a2, $zero, 4         # a2 = 4 (TAMANHO DO BUFFER)
+    syscall
+    jr $ra                # RETURN
+        
+fecha_leitura:
+    addi $v0, $zero, 16        # INSTRUCAO PARA FECHAMENTO DE ARQ
+    lw $a0, descrin            # a0 = descrin
+    syscall
+    beq $v0, $zero, erro_arquivo      # VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
+    jr $ra                # RETURN
 
-# ESCRITA!  			
-abre_out:
-	addi $v0, $zero, 13 		# INSTRUCAO PARA ABERTURA DE ARQ
-	la $a0, fileout 		# a0 = CAMINHO DO ARQ
-	addi $a1, $zero, 1 		# a1 = 1 (ESCRITA)
-	syscall	
-	beq $v0, $zero, erro_arquivo	# SE V0 != 0, HOUVE ERRO E VAI PARA erro_aquivo ONDE E TRATADO O ERRO
-	sw $v0, descrout		# descrout = $v0
-	jr $ra					# RETURN
+# ESCRITA!              
+abre_escrita:
+    addi $v0, $zero, 13         # INSTRUCAO PARA ABERTURA DE ARQ
+    la $a0, fileout         # a0 = CAMINHO DO ARQ
+    addi $a1, $zero, 1         # a1 = 1 (ESCRITA)
+    syscall    
+    sw $v0, descrout        # descrout = $v0
+    jr $ra                    # RETURN
 
 escreve_out:
-	addi $v0, $zero, 15
-	lw $a0, descrout
-	la $a1, buffer
-	addi $a2, $zero, 4
-	syscall
-	jr $ra
+    addi $v0, $zero, 15
+    lw $a0, descrout
+    la $a1, buffer
+    addi $a2, $zero, 4
+    syscall
+    jr $ra
 
 #void writestr(char *str, int descriptor)
 writestr:
@@ -322,84 +320,12 @@ wstr_fim:
     addi $sp, $sp, 12
     jr $ra
 
-fecha_out:
-	addi $v0, $zero, 16		# INSTRUCAO PARA FECHAMENTO DE ARQ
-	lw $a0, descrout		# a0 = descrout
-	syscall
-	beq $v0, $zero, erro_arquivo  	# VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
-	jr $ra				# RETURN
-
-# FUNCAO DE TESTE:
-testa_out:
-    # mapa de memoria:
-    la $s0, buffer
-    la $s1, opcode
-    la $s2, func
-    la $s3, rs
-    la $s4, rt
-    la $s5, rd
-    la $s6, shamt_imm
-    
-    #printar buffer
-    addi $v0, $zero, 35
-    lw $a0, 0($s0)
+fecha_escrita:
+    addi $v0, $zero, 16        # INSTRUCAO PARA FECHAMENTO DE ARQ
+    lw $a0, descrout        # a0 = descrout
     syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar opcode
-    addi $v0, $zero, 35
-    lw $a0, 0($s1)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar func
-    addi $v0, $zero, 35
-    lw $a0, 0($s2)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar rs
-    addi $v0, $zero, 35
-    lw $a0, 0($s3)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar rt
-    addi $v0, $zero, 35
-    lw $a0, 0($s4)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar rd
-    addi $v0, $zero, 35
-    lw $a0, 0($s5)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar shamt/imm
-    addi $v0, $zero, 35
-    lw $a0, 0($s6)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #mais um \n
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
+    beq $v0, $zero, erro_arquivo      # VERIFICA SE O FECHAMENTO FOI BEM SUCEDIDO 
+    jr $ra                # RETURN
 
 # DECODIFICACAO:
 # int neg16toneg32(int num) -> int num
@@ -832,46 +758,44 @@ str_escolhe_final_fim:
     jr $ra
 
 
-# LOOP PARA LEITURA E ESCRITA!!
+# LOOP PARA LEITURA!!
 loop:
     # prologo:
     addi $sp, $sp, -4 # ajustando pilha
-	sw $ra, 0($sp)    # guardando endereco de retorno
-	
+    sw $ra, 0($sp)    # guardando endereco de retorno
+    
 loop_1:
-	jal le_in
-	j loop_teste
+    jal le_in
+    j loop_teste
 
 loop_teste:
     addi $t0, $zero, 4
-	bne $v0, $t0, loop_fim
+    bne $v0, $t0, loop_fim
 
 loop_2:
-	jal decodifica
+    jal decodifica
     jal str_escolhe_final
     la $a0, str_final
     la $a1, descrout
     lw $a1, 0($a1)
     jal writestr
-	j loop_1
-	
+    j loop_1
+    
 erro_arquivo:
-    addi $v0, $zero, 4    		# IMPRIMIR STRING
-    la $a0, erro_manipulacao		# MENSAGEM DE ERRO AO USUARIO
+    addi $v0, $zero, 4            # IMPRIMIR STRING
+    la $a0, erro_manipulacao        # MENSAGEM DE ERRO AO USUARIO
     syscall
 
 loop_fim:
     # epilogo:
-    lw $ra, 0($sp)   # recuperando end de retorno
-    addi $sp, $sp, 4 # reajustando pilha
-	jr $ra
+    lw $ra, 0($sp)   # RECUPERANDO END DE RETORNO
+    addi $sp, $sp, 4 # REAJUSTANDO PILHA
+    jr $ra
 
 main:
-    jal abre_in
-    jal abre_out
-    
+    jal abre_leitura
+    jal abre_escrita
     jal loop
-    
-    jal fecha_in
-    jal fecha_out
+    jal fecha_leitura
+    jal fecha_escrita
     j fini
