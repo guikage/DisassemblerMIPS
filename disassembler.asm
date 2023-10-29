@@ -1,6 +1,6 @@
 .data
     filein: .asciiz "./teste.bin"
-    fileout: .asciiz "./teste.txt"
+    fileout: .asciiz "./teste.asm"
     descrin: .word 0
     descrout: .word 0
     buffer: .space 4
@@ -10,8 +10,231 @@
     rs: .word 0
     rt: .word 0
     rd: .word 0
-    shamt: .word 0
-    imm: .word 0    
+    shamt_imm: .word 0
+    str_shamt_imm: .space 12
+    str_final: .space 60
+    
+str_unk: .asciiz "unknown\n"
+
+# caracteres:
+# #: str_1 rs/shamt
+# $: str_2 rt
+# %: str_3 rd/imm
+
+# instrucoes por opcode
+str_op_02: .asciiz "j %\n"
+str_op_03: .asciiz "jal %\n"
+str_op_04: .asciiz "beq #, $, %\n"
+str_op_05: .asciiz "bne #, $, %\n"
+str_op_06: .asciiz "blez #, %\n"
+str_op_07: .asciiz "bgtz #, %\n"
+str_op_08: .asciiz "addi $, #, %\n"
+str_op_09: .asciiz "addiu $, #, %\n"
+str_op_10: .asciiz "slti $, #, %\n"
+str_op_11: .asciiz "sltiu $, #, %\n"
+str_op_12: .asciiz "andi $, #, %\n"
+str_op_13: .asciiz "ori $, #, %\n"
+str_op_14: .asciiz "xori $, #, %\n"
+str_op_15: .asciiz "lui $, %\n"
+str_op_28: .asciiz "mul %, #, $\n"
+str_op_29: .asciiz "mulu %, #, $\n"
+str_op_32: .asciiz "lb $, %(#)\n"
+str_op_33: .asciiz "lh $, %(#)\n"
+str_op_34: .asciiz "lw $, %(#)\n"
+str_op_36: .asciiz "lbu $, %(#)\n"
+str_op_37: .asciiz "lhu $, %(#)\n"
+str_op_40: .asciiz "sb $, %(#)\n"
+str_op_41: .asciiz "sh $, %(#)\n"
+str_op_43: .asciiz "sw $, %(#)\n"
+
+str_op_vet:
+.word str_unk
+.word str_unk
+.word str_op_02
+.word str_op_03
+.word str_op_04
+.word str_op_05
+.word str_op_06
+.word str_op_07
+.word str_op_08
+.word str_op_09
+.word str_op_10
+.word str_op_11
+.word str_op_12
+.word str_op_13
+.word str_op_14
+.word str_op_15
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_op_28
+.word str_op_29
+.word str_unk
+.word str_unk
+.word str_op_32
+.word str_op_33
+.word str_op_34
+.word str_op_34
+.word str_op_36
+.word str_op_37
+.word str_unk
+.word str_unk
+.word str_op_40
+.word str_op_41
+.word str_unk
+.word str_op_43
+
+#instrucoes por func
+str_func_00: .asciiz "sll %, $, #\n"
+str_func_02: .asciiz "srl %, $, #\n"
+str_func_03: .asciiz "sra %, $, #\n"
+str_func_04: .asciiz "sllv %, $, #\n"
+str_func_06: .asciiz "srlv %, $, #\n"
+str_func_07: .asciiz "srav %, $, #\n"
+str_func_08: .asciiz "jr #\n"
+str_func_09: .asciiz "jalr %, #\n"
+str_func_12: .asciiz "syscall\n"
+str_func_16: .asciiz "mfhi %\n"
+str_func_17: .asciiz "mthi #\n"
+str_func_18: .asciiz "mflo %\n"
+str_func_19: .asciiz "mtlo #\n"
+str_func_24: .asciiz "mult #, $\n"
+str_func_25: .asciiz "multu #, $\n"
+str_func_26: .asciiz "div #, $\n"
+str_func_27: .asciiz "divu #, $\n"
+str_func_32: .asciiz "add %, #, $\n"
+str_func_33: .asciiz "addu %, #, $\n"
+str_func_34: .asciiz "sub %, #, $\n"
+str_func_35: .asciiz "subu %, #, $\n"
+str_func_36: .asciiz "and %, #, $\n"
+str_func_37: .asciiz "or %, #, $\n"
+str_func_38: .asciiz "xor %, #, $\n"
+str_func_39: .asciiz "nor %, #, $\n"
+str_func_42: .asciiz "slt %, #, $\n"
+str_func_43: .asciiz "sltu %, #, $\n"
+
+str_func_vet:
+.word str_func_00
+.word str_unk
+.word str_func_02
+.word str_func_03
+.word str_func_04
+.word str_unk
+.word str_func_06
+.word str_func_07
+.word str_func_08
+.word str_func_09
+.word str_unk
+.word str_unk
+.word str_func_12
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_func_16
+.word str_func_17
+.word str_func_18
+.word str_func_19
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_func_24
+.word str_func_25
+.word str_func_26
+.word str_func_27
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_unk
+.word str_func_32
+.word str_func_33
+.word str_func_34
+.word str_func_35
+.word str_func_36
+.word str_func_37
+.word str_func_38
+.word str_func_39
+.word str_unk
+.word str_unk
+.word str_func_42
+.word str_func_43
+
+#registradores
+str_reg_00: .asciiz "$zero"
+str_reg_01: .asciiz "$at"
+str_reg_02: .asciiz "$v0"
+str_reg_03: .asciiz "$v1"
+str_reg_04: .asciiz "$a0"
+str_reg_05: .asciiz "$a1"
+str_reg_06: .asciiz "$a2"
+str_reg_07: .asciiz "$a3"
+str_reg_08: .asciiz "$t0"
+str_reg_09: .asciiz "$t1"
+str_reg_10: .asciiz "$t2"
+str_reg_11: .asciiz "$t3"
+str_reg_12: .asciiz "$t4"
+str_reg_13: .asciiz "$t5"
+str_reg_14: .asciiz "$t6"
+str_reg_15: .asciiz "$t7"
+str_reg_16: .asciiz "$s0"
+str_reg_17: .asciiz "$s1"
+str_reg_18: .asciiz "$s2"
+str_reg_19: .asciiz "$s3"
+str_reg_20: .asciiz "$s4"
+str_reg_21: .asciiz "$s5"
+str_reg_22: .asciiz "$s6"
+str_reg_23: .asciiz "$s7"
+str_reg_24: .asciiz "$t8"
+str_reg_25: .asciiz "$t9"
+str_reg_26: .asciiz "$k0"
+str_reg_27: .asciiz "$k1"
+str_reg_28: .asciiz "$gp"
+str_reg_29: .asciiz "$sp"
+str_reg_30: .asciiz "$fp"
+str_reg_31: .asciiz "$ra"
+
+str_reg_vet:
+.word str_reg_00
+.word str_reg_01
+.word str_reg_02
+.word str_reg_03
+.word str_reg_04
+.word str_reg_05
+.word str_reg_06
+.word str_reg_07
+.word str_reg_08
+.word str_reg_09
+.word str_reg_10
+.word str_reg_11
+.word str_reg_12
+.word str_reg_13
+.word str_reg_14
+.word str_reg_15
+.word str_reg_16
+.word str_reg_17
+.word str_reg_18
+.word str_reg_19
+.word str_reg_20
+.word str_reg_21
+.word str_reg_22
+.word str_reg_23
+.word str_reg_24
+.word str_reg_25
+.word str_reg_26
+.word str_reg_27
+.word str_reg_28
+.word str_reg_29
+.word str_reg_30
+.word str_reg_31
     
 .text
     
@@ -69,6 +292,36 @@ escreve_out:
 	syscall
 	jr $ra
 
+#void writestr(char *str, int descriptor)
+writestr:
+    # prologo:
+    addi $sp, $sp, -12
+    sw $ra, 8($sp)
+    sw $a0, 0($sp)
+    sw $a1, 4($sp)
+    
+    # corpo:
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+
+wstr_loop:
+    addi $v0, $zero, 15
+    addi $a0, $t1, 0
+    addi $a1, $t0, 0
+    addi $a2, $zero, 1
+    syscall
+    addi $t0, $t0, 1
+
+wstr_loop_teste:
+    lb $t2, 0($t0)
+    bne $t2, $zero, wstr_loop
+
+wstr_fim:
+    # epilogo:
+    lw $ra, 8($sp)
+    addi $sp, $sp, 12
+    jr $ra
+
 fecha_out:
 	addi $v0, $zero, 16		# INSTRUCAO PARA FECHAMENTO DE ARQ
 	lw $a0, descrout		# a0 = descrout
@@ -85,8 +338,7 @@ testa_out:
     la $s3, rs
     la $s4, rt
     la $s5, rd
-    la $s6, shamt
-    la $s7, imm
+    la $s6, shamt_imm
     
     #printar buffer
     addi $v0, $zero, 35
@@ -136,17 +388,9 @@ testa_out:
     addi $a0, $zero, 10
     syscall
     
-    #printar shamt
+    #printar shamt/imm
     addi $v0, $zero, 35
     lw $a0, 0($s6)
-    syscall
-    addi $v0, $zero, 11
-    addi $a0, $zero, 10
-    syscall
-    
-    #printar imm
-    addi $v0, $zero, 35
-    lw $a0, 0($s7)
     syscall
     addi $v0, $zero, 11
     addi $a0, $zero, 10
@@ -158,6 +402,30 @@ testa_out:
     syscall
 
 # DECODIFICACAO:
+# int neg16toneg32(int num) -> int num
+#                  $a0 0sp     $v0 0sp
+neg16bits:
+    # prologo:
+    addi $sp, $sp, -8
+    sw $a0, 0($sp)
+    sw $ra, 4($sp)
+
+    # corpo
+    lw $t0, 0($sp)
+    ori $t1, $zero, 0x0000f000
+    slt $t1, $t0, $t1
+    bne $t1, $zero, neg16bits_fim
+    
+    lui $t1, 0x0000ffff
+    or $t0, $t1, $t0
+    sw $t0, 0($sp)
+
+neg16bits_fim:
+    lw $v0, 0($sp)
+    lw $ra, 4($sp)
+    addi $sp, $sp, 8
+    jr $ra
+
 # decodifica_campo(int buffer, int shift, int masc) -> int decod
 #                  $a0 4(sp)   $a1 8(sp)  $a2 12(sp)   $v0 0(sp)
 decodifica_campo:
@@ -180,7 +448,6 @@ decodifica_campo:
     addi $sp, $sp, 16    # reajustando a pilha
     jr $ra               # return decod
 
-
 # decodifica(void) -> void
 decodifica:
     # prologo:
@@ -194,8 +461,7 @@ decodifica:
     la $s3, rs
     la $s4, rt
     la $s5, rd
-    la $s6, shamt
-    la $s7, imm
+    la $s6, shamt_imm
 
     # decodifica opcode
     # opcode = decodifica_campo(buffer, 26, 0x003f)
@@ -267,7 +533,8 @@ decodifica_j:
     lui $a2, 0x003f
     ori $a2, 0xffff
     jal decodifica_campo
-    sw $v0, 0($s7)
+    sll $v0, $v0, 2
+    sw $v0, 0($s6)
     
     # pula pro fim
     j decodifica_fim
@@ -295,13 +562,275 @@ decodifica_i:
     addi $a1, $zero, 0
     addi $a2, $zero, 0xffff
     jal decodifica_campo
-    sw $v0, 0($s7)
+    sw $v0, 0($s6)
+
+    # transforma imm em negativo de 32 bits
+    # imm = neg16bits(imm)
+    lw $a0, 0($s6)
+    jal neg16bits
+    sw $v0, 0($s6)
     
 decodifica_fim:
+    # cria string com imm/shamt
+    lw $a0, 0($s6)
+    la $a1, str_shamt_imm
+    jal hextostr
+
     # epilogo:
     lw $ra, 0($sp)   # reajusta o endereco de retorno
     addi $sp, $sp, 4 # reajusta a pilha
     jr $ra           # volta pro procedimento chamador
+
+# MANIPULACAO DE STRING!!
+
+#void hextostr(int num, char *str)
+#              $a0,     $a1
+hextostr:
+    # prologo:
+    addi $sp, $sp, -12
+    sw $ra, 8($sp)
+    sw $a0, 0($sp)
+    sw $a1, 4($sp)
+
+    # corpo:
+    lw $t0, 0($sp)      # $t0 = num
+    addi $t1, $zero, 8  # $t1 = i
+    lw $t2, 4($sp)      # $t2 = str[i+2]
+    addi $t3, $zero, 48
+    sb $t3, 0($t2)      # str[0] = '0'
+    addi $t3, $zero, 120
+    sb $t3, 1($t2)      # str[1] = 'x'
+    sb $zero, 10($t2)   # str[10] = '\0'
+    addi $t2, $t2, 9   # i = 8
+    j hextostr_loop_teste
+
+hextostr_loop:
+    #$t3 = $t0 || 0xf
+    andi $t3, $t0, 0xf
+    
+    hextostr_if:
+    #if (9 < t3)
+    addi $t4, $zero, 9
+    slt $t4, $t4, $t3
+    bne $t4, $zero, hextostr_if_v
+
+    hextostr_if_f:
+    addi $t3, $t3, 48
+    j hextostr_if_fim
+
+    hextostr_if_v:
+    addi $t3, $t3, 87
+
+    hextostr_if_fim:
+    sb $t3, 0($t2)
+    #num /= 16
+    srl $t0, $t0, 4
+    #i--
+    addi $t1, $t1, -1
+    addi $t2, $t2, -1
+    
+hextostr_loop_teste:
+    #while (0 < i)
+    slt $t3, $zero, $t1
+    bne $t3, $zero, hextostr_loop
+
+hextostr_fim:
+    # epilogo:
+    lw $ra, 8($sp)
+    addi $sp, $sp, 12
+    jr $ra
+
+# char *str_copia(char *str_inicio, char *str_origem) -> char *str_fim
+str_copia:
+    # prologo:
+    addi $sp, $sp, -12
+    sw $ra, 8($sp)
+    sw $a0, 0($sp)
+    sw $a1, 4($sp)
+    
+    # corpo:
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+
+str_copia_loop:
+    lb $t2, 0($t1)
+    sb $t2, 0($t0)
+    addi $t0, $t0, 1
+    addi $t1, $t1, 1
+
+str_copia_loop_teste:
+    lb $t2, 0($t1)
+    bne $t2, $zero, str_copia_loop
+
+str_copia_fim:
+    # epilogo:
+    lw $ra, 8($sp)
+    move $v0, $t0
+    addi $sp, $sp, 12
+    jr $ra
+
+# void str_monta_final(char *str_montagem, char *str_1, char *str_2, char *str_3)
+str_monta_final:
+    # prologo:
+    addi $sp, $sp, -20 #ajustando a pilha
+    sw $ra, 16($sp)    #16(sp) = ra
+    sw $a0, 0($sp)     #00(sp) = str_montagem
+    sw $a1, 4($sp)     #04(sp) = str_1
+    sw $a2, 8($sp)     #08(sp) = str_2
+    sw $a3, 12($sp)    #12(sp) = str_3
+    
+    # corpo:
+    la $t0, str_final
+    lw $t1, 0($sp)
+
+str_monta_final_loop:
+str_monta_final_if:
+    #if (str_montagem[i] == '#')
+    lb $t3, 0($t1)
+    addi $t4, $zero, 35
+    beq $t3, $t4, str_monta_final_switch_1
+    #if (str_montagem[i] == '$')
+    addi $t4, $t4, 1
+    beq $t3, $t4, str_monta_final_switch_2
+    #if (str_montagem[i] == '%')
+    addi $t4, $t4, 1
+    beq $t3, $t4, str_monta_final_switch_3
+    j str_monta_final_if_f
+
+str_monta_final_switch_1:
+    lw $a1, 4($sp)
+    j str_monta_final_switch_fim
+
+str_monta_final_switch_2:
+    lw $a1, 8($sp)
+    j str_monta_final_switch_fim
+
+str_monta_final_switch_3:
+    lw $a1, 12($sp)
+    j str_monta_final_switch_fim
+
+str_monta_final_switch_fim:
+    sw $t1, 0($sp)
+    move $a0, $t0
+    jal str_copia
+    addi $t0, $v0, 0
+    lw $t1, 0($sp)
+    addi $t1, $t1, 1
+    j str_monta_final_loop_teste
+
+str_monta_final_if_f:
+    lb $t3, 0($t1)
+    sb $t3, 0($t0)
+    addi $t0, $t0, 1
+    addi $t1, $t1, 1
+
+str_monta_final_loop_teste:
+    lb $t3, 0($t1)
+    bne $t3, $zero, str_monta_final_loop
+
+str_monta_final_fim:
+    sb $zero, 0($t0)
+    # epilogo:
+    lw $ra, 16($sp)
+    addi $sp, $sp, 20
+    jr $ra
+
+str_escolhe_final:
+    # prologo:
+    addi $sp, $sp, -4    # ajustando pilha
+    sw $ra, 0($sp)       # 0($sp) = $ra
+
+    # mapa de memoria:
+    la $s2, opcode
+    la $s3, func
+    la $s4, rs
+    la $s5, rt
+    la $s6, rd
+    la $s7, str_shamt_imm
+
+    # corpo:
+    lw $t0, 0($s2)
+    beq $t0, $zero, str_escolhe_final_r
+
+    la $s0, str_op_vet
+    la $s1, str_reg_vet
+
+    # a0 = string_montagem
+    sll $t0, $t0, 2
+    add $a0, $s0, $t0
+    lw $a0, 0($a0)
+    
+    # se op == 28 || op == 29 -> mul
+    srl $t0, $t0, 2
+    addi $t1, $zero, 28
+    beq $t0, $t1, str_escolhe_final_r_mul
+    addi $t1, $t1, 1
+    beq $t0, $t1, str_escolhe_final_r_mul
+
+    # a1 = str_1 ($rs)
+    lw $t0, 0($s4)
+    sll $t0, $t0, 2
+    add $a1, $s1, $t0
+    lw $a1, 0($a1)
+    
+    # a2 = str_2 ($rt)
+    lw $t0, 0($s5)
+    sll $t0, $t0, 2
+    add $a2, $s1, $t0
+    lw $a2, 0($a2)
+    
+    # a3 = str_3 (imm)
+    addi $a3, $s7, 0
+
+    j str_escolhe_final_fim
+
+str_escolhe_final_r:
+    la $s0, str_func_vet
+    la $s1, str_reg_vet
+
+    # a0 = string_montagem
+    lw $t0, 0($s3)
+    sll $t0, $t0, 2
+    add $a0, $s0, $t0
+    lw $a0, 0($a0)
+
+    str_escolhe_final_r_mul:
+
+    # a1 = str_1 ($rs)
+    lw $t0, 0($s4)
+    sll $t0, $t0, 2
+    add $a1, $s1, $t0
+    lw $a1, 0($a1)
+    
+    # a2 = str_2 ($rt)
+    lw $t0, 0($s5)
+    sll $t0, $t0, 2
+    add $a2, $s1, $t0
+    lw $a2, 0($a2)
+    
+    # a3 = str_3 ($rd)
+    lw $t0, 0($s5)
+    sll $t0, $t0, 2
+    add $a3, $s1, $t0
+    lw $a3, 0($a3)
+
+    # if (func < 4)
+    lw $t0, 0($s3)
+    addi $t1, $zero, 4
+    slt $t1, $t0, $t1
+    beq $t1, $zero, str_escolhe_final_fim
+
+    # a1 = str_1 (shamt)
+    addi $a3, $s7, 0
+
+str_escolhe_final_fim:
+    jal str_monta_final
+
+    # epilogo:
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr $ra
+
 
 # LOOP PARA LEITURA E ESCRITA!!
 loop:
@@ -319,8 +848,11 @@ loop_teste:
 
 loop_2:
 	jal decodifica
-	#jal escreve_out
-	jal testa_out
+    jal str_escolhe_final
+    la $a0, str_final
+    la $a1, descrout
+    lw $a1, 0($a1)
+    jal writestr
 	j loop_1
 	
 erro_arquivo:
