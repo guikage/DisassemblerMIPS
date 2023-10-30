@@ -1,49 +1,49 @@
-addiu $sp, $sp, 0xfffffff8
-addiu $t0, $zero, 0x00000005
-sw $t0, 0x00000004($sp)
-add $t0, $zero, $t0
-jal 0x0040003c
-lw $t0, 0x00000004($sp)
-addu $v0, $zero, $v0
-sw $v0, 0x00000000($sp)
-addu $t0, $zero, $t0
-addu $t1, $zero, $t1
-jal 0x00400070
-addiu $sp, $sp, 0x00000008
-addiu $v0, $zero, 0x00000011
-addiu $a0, $zero, 0x00000000
-syscall
-addiu $sp, $sp, 0xfffffff8
-sw $ra, 0x00000004($sp)
-sw $a0, 0x00000000($sp)
-bne $zero, $a0, 0x00000002
-addi $v0, $zero, 0x00000001
-j 0x00400068
-addi $a0, $a0, 0xffffffff
-jal 0x0040003c
-lw $a0, 0x00000000($sp)
-mul $v0, $a0, $v0
-lw $ra, 0x00000004($sp)
-addi $sp, $sp, 0x00000008
-jr $ra
-addiu $sp, $sp, 0xfffffffc
-sw $a0, 0x00000000($sp)
-addiu $v0, $zero, 0x00000004
-lui $at, 0x00001001
-ori $a0, $at, 0x00000000
-syscall
-lw $a0, 0x00000000($sp)
-addiu $v0, $zero, 0x00000001
-syscall
-lui $at, 0x00001001
-ori $a0, $at, 0x0000000f
-addiu $v0, $zero, 0x00000004
-syscall
-addu $a1, $zero, $a1
-addiu $v0, $zero, 0x00000001
-syscall
-addiu $a0, $zero, 0x0000000a
-addiu $v0, $zero, 0x0000000b
-syscall
-addiu $sp, $sp, 0x00000004
-jr $ra
+addiu $sp, $sp, 0xfffffff8 #0x00400000
+addiu $t0, $zero, 0x00000005 #0x00400004
+sw $t0, 0x00000004($sp) #0x00400008
+add $a0, $zero, $t0 #0x0040000c
+jal 0x0040003c #0x00400010
+lw $t0, 0x00000004($sp) #0x00400014
+addu $t1, $zero, $v0 #0x00400018
+sw $v0, 0x00000000($sp) #0x0040001c
+addu $a0, $zero, $t0 #0x00400020
+addu $a1, $zero, $t1 #0x00400024
+jal 0x00400070 #0x00400028
+addiu $sp, $sp, 0x00000008 #0x0040002c
+addiu $v0, $zero, 0x00000011 #0x00400030
+addiu $a0, $zero, 0x00000000 #0x00400034
+syscall #0x00400038
+addiu $sp, $sp, 0xfffffff8 #0x0040003c
+sw $ra, 0x00000004($sp) #0x00400040
+sw $a0, 0x00000000($sp) #0x00400044
+bne $zero, $a0, 0x00400054 #0x00400048
+addi $v0, $zero, 0x00000001 #0x0040004c
+j 0x00400068 #0x00400050
+addi $a0, $a0, 0xffffffff #0x00400054
+jal 0x0040003c #0x00400058
+lw $a0, 0x00000000($sp) #0x0040005c
+mul $v0, $a0, $v0 #0x00400060
+lw $ra, 0x00000004($sp) #0x00400064
+addi $sp, $sp, 0x00000008 #0x00400068
+jr $ra #0x0040006c
+addiu $sp, $sp, 0xfffffffc #0x00400070
+sw $a0, 0x00000000($sp) #0x00400074
+addiu $v0, $zero, 0x00000004 #0x00400078
+lui $at, 0x00001001 #0x0040007c
+ori $a0, $at, 0x00000000 #0x00400080
+syscall #0x00400084
+lw $a0, 0x00000000($sp) #0x00400088
+addiu $v0, $zero, 0x00000001 #0x0040008c
+syscall #0x00400090
+lui $at, 0x00001001 #0x00400094
+ori $a0, $at, 0x0000000f #0x00400098
+addiu $v0, $zero, 0x00000004 #0x0040009c
+syscall #0x004000a0
+addu $a0, $zero, $a1 #0x004000a4
+addiu $v0, $zero, 0x00000001 #0x004000a8
+syscall #0x004000ac
+addiu $a0, $zero, 0x0000000a #0x004000b0
+addiu $v0, $zero, 0x0000000b #0x004000b4
+syscall #0x004000b8
+addiu $sp, $sp, 0x00000004 #0x004000bc
+jr $ra #0x004000c0
