@@ -334,15 +334,28 @@ fecha_escrita:
     jr $ra                # RETURN
 
 # DECODIFICACAO:
-# int neg16toneg32(int num) -> int num
-#                  $a0 0sp     $v0 0sp
+# int neg16toneg32(int num, int opcode) -> int num
+#                  $a0 0sp  $a1 4sp        $v0 0sp
 neg16bits:
     # prologo:
-    addi $sp, $sp, -8
+    addi $sp, $sp, -12
     sw $a0, 0($sp)
-    sw $ra, 4($sp)
+    sw $a1, 0($sp)
+    sw $ra, 8($sp)
 
     # corpo
+    # confere se op == andi/ori/xori/lui
+    lw $t0, 4($sp)
+    addi $t1, $zero, 12
+    beq $t0, $t1, neg16bits_fim
+    addi $t1, $t1, 1
+    beq $t0, $t1, neg16bits_fim
+    addi $t1, $t1, 1
+    beq $t0, $t1, neg16bits_fim
+    addi $t1, $t1, 1
+    beq $t0, $t1, neg16bits_fim
+
+    # confere se num >= 0xf000
     lw $t0, 0($sp)
     ori $t1, $zero, 0x0000f000
     slt $t1, $t0, $t1
@@ -354,8 +367,8 @@ neg16bits:
 
 neg16bits_fim:
     lw $v0, 0($sp)
-    lw $ra, 4($sp)
-    addi $sp, $sp, 8
+    lw $ra, 8($sp)
+    addi $sp, $sp, 12
     jr $ra
 
 # decodifica_campo(int buffer, int shift, int masc) -> int decod
@@ -530,6 +543,7 @@ decodifica_i:
     # transforma imm em negativo de 32 bits
     # imm = neg16bits(imm)
     lw $a0, 0($s6)
+    lw $a1, 0($s1)
     jal neg16bits
     sw $v0, 0($s6)
 
